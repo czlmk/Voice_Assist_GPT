@@ -1,176 +1,192 @@
 #include "messengen.h"
 
-MessaGen::MessaGen(std::string& model, std::string& prompt, std::string& suffix, int max_tokens, float temperature,
-                   float top_p, int n, bool stream, int logprobs, bool echo, std::string& stop, float presence_penalty, float frequency_penalty,
-                   int best_of, const std::map<std::string, int> logit_bias, std::string& user)
-    :prompt_(prompt), suffix_(suffix), max_tokens_(max_tokens), temperature_(temperature), top_p_(top_p),n_(n), stream_(stream), logprobs_(logprobs),
-    echo_(echo), stop_(stop), presence_penalty_(presence_penalty), frequency_penalty_(frequency_penalty), logit_bias_(logit_bias), user_(user)
+MessenGen::MessenGen()
+    :model_("gpt-3.5-turbo"),prompt_(""), suffix_(""), max_tokens_(16), temperature_(1.0), top_p_(1.0),n_(1), stream_(false), logprobs_(0),
+    echo_(false), stop_("."), presence_penalty_(0.0), frequency_penalty_(0.0),best_of_(1), logit_bias_({}), user_("")
 {
     // Initialize the class with the given arguments
 }
 
+// Convert the object to a JSON representation
+nlohmann::json MessenGen::toJSON() const
+{
+    nlohmann::json json_obj;
+    json_obj["model"] = model_;
+    if(!prompt_.empty()) json_obj["prompt"] = prompt_;
+    if(!suffix_.empty()) json_obj["suffix"] = suffix_;
+    if(max_tokens_ != 16) json_obj["max_tokens"] = max_tokens_;
+    if(temperature_ != 1.0) json_obj["temperature"] = temperature_;
+    if(top_p_ != 1.0) json_obj["top_p"] = top_p_;
+    if(n_ != 1)json_obj["n"] = n_;
+    if(stream_) json_obj["stream"] = stream_;
+    if(logprobs_) json_obj["logprobs"] = logprobs_;
+    if(echo_) json_obj["echo"] = echo_;
+    if(frequency_penalty_) json_obj["frequency_penalty"] = frequency_penalty_;
+    if(presence_penalty_) json_obj["presence_penalty"] = presence_penalty_;
+    if(!stop_.empty()) json_obj["stop"] = stop_;
+    if(best_of_ != 1) json_obj["best_of"] = best_of_;
+    if(!logit_bias_.empty())json_obj["logit_bias"] = logit_bias_;
+    if(!user_.empty()) json_obj["user"] = user_;
+
+    return json_obj;
+}
+
 // Setter methods
-void MessaGen::setPrompt(std::string& prompt)
+MessenGen& MessenGen::setModel(std::string model)
 {
-    prompt_ = prompt;
+    model_ = model; return *this;
 }
 
-void MessaGen::setSuffix(std::string& suffix)
+MessenGen& MessenGen::setPrompt(std::string prompt)
 {
-    suffix_ = suffix;
+    prompt_ = prompt; return *this;
 }
 
-void MessaGen::setMaxTokens(int max_tokens)
+MessenGen& MessenGen::setSuffix(std::string suffix)
 {
-    max_tokens_ = max_tokens;
+    suffix_ = suffix; return *this;
 }
 
-void MessaGen::setTemperature(float temperature)
+MessenGen& MessenGen::setMaxTokens(int max_tokens)
 {
-    temperature_ = temperature;
+    max_tokens_ = max_tokens; return *this;
 }
 
-void MessaGen::setTopP(float top_p)
+MessenGen& MessenGen::setTemperature(float temperature)
 {
-    top_p_ = top_p;
-}
-void MessaGen::setN(int n)
-{
-    n_ = n;
-}
-void MessaGen::setStream(bool stream)
-{
-    stream_ = stream;
-}
-void MessaGen::logprobs(int logprobs)
-{
-    logprobs_ = logprobs;
-}
-void MessaGen::setEcho(bool echo)
-{
-    echo_ = echo;
+    temperature_ = temperature; return *this;
 }
 
-void MessaGen::setFrequencyPenalty(float frequency_penalty)
+MessenGen& MessenGen::setTopP(float top_p)
 {
-    frequency_penalty_ = frequency_penalty;
+    top_p_ = top_p; return *this;
 }
 
-void MessaGen::setPresencePenalty(float presence_penalty)
+MessenGen& MessenGen::setN(int n)
 {
-    presence_penalty_ = presence_penalty;
+    n_ = n; return *this;
+}
+MessenGen& MessenGen::setStream(bool stream)
+{
+    stream_ = stream; return *this;
+}
+MessenGen& MessenGen::logprobs(int logprobs)
+{
+    logprobs_ = logprobs; return *this;
+}
+MessenGen& MessenGen::setEcho(bool echo)
+{
+    echo_ = echo; return *this;
 }
 
-void MessaGen::setBestOf(int best_of)
+MessenGen& MessenGen::setFrequencyPenalty(float frequency_penalty)
 {
-    best_of_ = best_of;
+    frequency_penalty_ = frequency_penalty; return *this;
 }
 
-void MessaGen::setLogitBias(std::map<std::string, int> logit_bias)
+MessenGen& MessenGen::setPresencePenalty(float presence_penalty)
 {
-    logit_bias_ = logit_bias;
+    presence_penalty_ = presence_penalty; return *this;
 }
 
-void MessaGen::setStop(std::string stop)
+MessenGen& MessenGen::setBestOf(int best_of)
 {
-    stop_ = stop;
+    best_of_ = best_of; return *this;
 }
 
-void MessaGen::setUser(std::string& user)
+MessenGen& MessenGen::setLogitBias(std::map<std::string, int> logit_bias)
 {
-    user_ = user;
+    logit_bias_ = logit_bias; return *this;
+}
+
+MessenGen& MessenGen::setStop(std::string stop)
+{
+    stop_ = stop; return *this;
+}
+
+MessenGen& MessenGen::setUser(std::string& user)
+{
+    user_ = user; return *this;
 }
 
 
 // Getter methods
-const std::string& MessaGen::getPrompt() const
+const std::string MessenGen::getModel() const
+{
+    return model_;
+}
+const std::string MessenGen::getPrompt() const
 {
     return prompt_;
 }
 
-const std::string& MessaGen::getSuffix() const
+const std::string MessenGen::getSuffix() const
 {
     return suffix_;
 }
 
-int MessaGen::getMaxTokens() const
+int MessenGen::getMaxTokens() const
 {
     return max_tokens_;
 }
 
-float MessaGen::getTemperature() const
+float MessenGen::getTemperature() const
 {
     return temperature_;
 }
 
-float MessaGen::getTopP() const
+float MessenGen::getTopP() const
 {
     return top_p_;
 }
-int MessaGen::getN() const
+int MessenGen::getN() const
 {
     return n_;
 }
 
-bool MessaGen::getStream() const
+bool MessenGen::getStream() const
 {
     return stream_;
 }
 
-int MessaGen::getLogprobs() const
+int MessenGen::getLogprobs() const
 {
     return logprobs_;
 }
 
-bool MessaGen::getEcho() const
+bool MessenGen::getEcho() const
 {
     return echo_;
 }
 
-const std::string& MessaGen::getStop() const
+const std::string MessenGen::getStop() const
 {
     return stop_;
 }
-float MessaGen::getFrequencyPenalty() const
+float MessenGen::getFrequencyPenalty() const
 {
     return frequency_penalty_;
 }
 
-float MessaGen::getPresencePenalty() const
+float MessenGen::getPresencePenalty() const
 {
     return presence_penalty_;
 }
 
-int MessaGen::getBestOf() const
+int MessenGen::getBestOf() const
 {
     return best_of_;
 }
     
-std::map<std::string, int> MessaGen::getLogitBias() const
+std::map<std::string, int> MessenGen::getLogitBias() const
 {
     return logit_bias_;
 }
 
 
-const std::string& MessaGen::getUser() const
+const std::string MessenGen::getUser() const
 {
     return user_;
 }
 
-// Convert the object to a JSON representation
-nlohmann::json MessaGen::toJSON() const
-{
-    nlohmann::json json_obj;
-    json_obj["model"] = model_;
-    json_obj["prompt"] = prompt_;
-    json_obj["suffix"] = suffix_;
-    json_obj["max_tokens"] = max_tokens_;
-    json_obj["temperature"] = temperature_;
-    json_obj["top_p"] = top_p_;
-    json_obj["frequency_penalty"] = frequency_penalty_;
-    json_obj["presence_penalty"] = presence_penalty_;
-    json_obj["stop"] = stop_;
-    json_obj["user"] = user_;
 
-    return json_obj;
-}
