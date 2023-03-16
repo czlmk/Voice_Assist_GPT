@@ -13,7 +13,7 @@ public:
                float frequency_penalty = 0.0, int best_of = 1, std::map<std::string, int> logit_bias = {}, std::string user = "");
                */
     MessenGen();
-
+    std::string toJSONs() const;
     nlohmann::json toJSON() const;           
     //setter
     MessenGen& setModel(std::string model);

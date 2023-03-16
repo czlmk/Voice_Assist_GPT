@@ -7,6 +7,41 @@ MessenGen::MessenGen()
     // Initialize the class with the given arguments
 }
 
+std::string MessenGen::toJSONs() const
+{
+    std::string json_str = "{";
+    json_str += "\"model\":\"" + model_ + "\",";
+    if(!prompt_.empty()) json_str += "\"prompt\":\"" + prompt_ + "\",";
+    if(!suffix_.empty()) json_str += "\"suffix\":\"" + suffix_ + "\",";
+    if(max_tokens_ != 16) json_str += "\"max_tokens\":" + std::to_string(max_tokens_) + ",";
+    if(temperature_ != 1.0) json_str += "\"temperature\":" + std::to_string(temperature_) + ",";
+    if(top_p_ != 1.0) json_str += "\"top_p\":" + std::to_string(top_p_) + ",";
+    if(n_ != 1) json_str += "\"n\":" + std::to_string(n_) + ",";
+    if(stream_) json_str += "\"stream\":true,";
+    if(logprobs_) json_str += "\"logprobs\":true,";
+    if(echo_) json_str += "\"echo\":true,";
+    if(frequency_penalty_) json_str += "\"frequency_penalty\":" + std::to_string(frequency_penalty_) + ",";
+    if(presence_penalty_) json_str += "\"presence_penalty\":" + std::to_string(presence_penalty_) + ",";
+    if(!stop_.empty()) json_str += "\"stop\":\"" + stop_ + "\",";
+    if(best_of_ != 1) json_str += "\"best_of\":" + std::to_string(best_of_) + ",";
+    if (!logit_bias_.empty()) 
+    {
+        json_str += "\"logit_bias\":{";
+        for (auto const& kv : logit_bias_) 
+        {
+            json_str += "\"" + kv.first + "\":" + std::to_string(kv.second) + ",";
+        }
+        json_str.pop_back(); // remove the last comma
+        json_str += "},";
+    }
+    if(!user_.empty()) json_str += "\"user\":\"" + user_ + "\",";
+    // Remove the last comma if there is one
+    if(json_str.back() == ',') {
+        json_str.pop_back();
+    }
+    json_str += "}";
+    return json_str;
+}
 // Convert the object to a JSON representation
 nlohmann::json MessenGen::toJSON() const
 {
