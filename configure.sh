@@ -1,3 +1,3 @@
 #! /bin/sh
 
-cmake  -S . -B build
+cmake  -DBUILD_CURL_EXE=OFF -S . -B build
