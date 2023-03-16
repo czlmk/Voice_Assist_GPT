@@ -1,17 +1,18 @@
 cmake_minimum_required(VERSION 3.0.0)
-project(home_ass VERSION 0.1.0)
+project(home_ass)
+add_executable(${PROJECT_NAME} main.cpp)
 
 add_library(
     messengen 
     messengen.h 
     messengen.cpp
 )
-
+add_library(
+    httpcon
+    httpcon.h
+    httpcon.cpp
+)
 find_package(nlohmann_json)
-
-include_directories()
-
-add_executable(home_ass main.cpp)
 
 #check if have all submodule
 find_package(Git QUIET)
@@ -28,21 +29,26 @@ if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
         endif()
     endif()
 endif()
-
 if(NOT EXISTS "${PROJECT_SOURCE_DIR}/external/libcurl/CMakeLists.txt")
     message(FATAL_ERROR "The submodules were not downloaded! GIT_SUBMODULE was turned off or failed. Please update submodules and try again.")
 endif()
+
 add_subdirectory(external/libcurl)
+###
 
 target_include_directories(
-    ${PROJECT_NAME} 
+    httpcon 
     PUBLIC external/libcurl/include
 )
 
+
 target_link_directories(
-    ${PROJECT_NAME}
+    httpcon
     PRIVATE external/libcurl/src
 )
-target_link_libraries(home_ass messengen nlohmann_json curl-d)
+
+target_link_libraries(httpcon libcurl)
+target_link_libraries(home_ass messengen nlohmann_json httpcon )
+
 
 

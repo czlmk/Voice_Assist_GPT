@@ -11,7 +11,7 @@ public:
     ~HttpCon();
     std::string sendGetRequest();
     std::string sendPostRequest(const std::string& data, const std::string& contentType);
-    std::string sendPutRequest(const std::string& data, const std::string& contentType);
+    
 
 private:
     CURL* curl;
